@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Neural Forge palette — all HSL */
+    --bg-void: 240 33% 5%;
+    --bg-surface: 240 27% 8%;
+    --bg-elevated: 240 20% 10%;
+
+    --accent-violet: 263 84% 58%;
+    --accent-cyan: 189 94% 43%;
+    --accent-pink: 330 81% 60%;
+
+    --text-primary: 249 100% 97%;
+    --text-secondary: 243 13% 55%;
+    --text-tertiary: 248 17% 28%;
+
+    --border-default: 263 84% 58% / 0.10;
+    --border-hover: 263 84% 58% / 0.28;
+    --border-active: 189 94% 43% / 0.40;
+
+    /* shadcn mappings */
+    --background: 240 33% 5%;
+    --foreground: 249 100% 97%;
+    --card: 240 27% 8%;
+    --card-foreground: 249 100% 97%;
+    --popover: 240 27% 8%;
+    --popover-foreground: 249 100% 97%;
+    --primary: 263 84% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 20% 10%;
+    --secondary-foreground: 249 100% 97%;
+    --muted: 240 20% 10%;
+    --muted-foreground: 243 13% 55%;
+    --accent: 189 94% 43%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 350 89% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 263 84% 58% / 0.10;
+    --input: 263 84% 58% / 0.10;
+    --ring: 189 94% 43%;
+    --radius: 0.75rem;
+
+    --sidebar-background: 240 27% 8%;
+    --sidebar-foreground: 249 100% 97%;
+    --sidebar-primary: 263 84% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 20% 10%;
+    --sidebar-accent-foreground: 249 100% 97%;
+    --sidebar-border: 263 84% 58% / 0.10;
+    --sidebar-ring: 189 94% 43%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Syne', sans-serif;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(240, 33%, 5%);
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(263, 84%, 58%, 0.4);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(263, 84%, 58%, 0.6);
+}
+
+/* Noise overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Ambient glow blobs */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 600px 600px at 10% 10%, hsl(263, 84%, 58%, 0.08), transparent),
+    radial-gradient(ellipse 600px 600px at 90% 90%, hsl(189, 94%, 43%, 0.08), transparent);
+}
+
+/* Typewriter cursor blink */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Button shimmer */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, hsl(263, 84%, 58%), hsl(189, 94%, 43%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient button */
+.btn-gradient {
+  background: linear-gradient(135deg, hsl(263, 84%, 58%), hsl(189, 94%, 43%));
+  position: relative;
+  overflow: hidden;
+}
+.btn-gradient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transform: translateX(-100%);
+}
+.btn-gradient:hover::after {
+  animation: shimmer 0.6s ease forwards;
+}
+
+/* Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Progress bar transition */
+.progress-fill {
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
