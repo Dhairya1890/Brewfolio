@@ -162,3 +162,56 @@ body::after {
 .progress-fill {
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ==================================================
+   THEME CLASSES
+   ================================================== */
+
+/* Glass theme specific overrides */
+.theme-glass .theme-card {
+  @apply bg-white/5 backdrop-blur-xl border-white/10;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Terminal theme specific overrides */
+.theme-terminal {
+  @apply font-mono bg-[#0c0c0c] text-green-500;
+}
+.theme-terminal .font-syne, 
+.theme-terminal .font-dm {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+.theme-terminal .theme-card {
+  @apply bg-black border-border rounded-none;
+}
+.theme-terminal h1, 
+.theme-terminal h2, 
+.theme-terminal h3, 
+.theme-terminal h4 {
+  @apply uppercase;
+}
+
+/* Magazine theme specific overrides */
+.theme-magazine {
+  @apply bg-[#f4f4f5] text-slate-900;
+}
+.theme-magazine .font-syne {
+  @apply font-bold tracking-tighter;
+}
+.theme-magazine .text-foreground {
+  @apply text-slate-900;
+}
+.theme-magazine .text-text-secondary,
+.theme-magazine .text-text-tertiary {
+  @apply text-slate-600;
+}
+.theme-magazine .bg-elevated,
+.theme-magazine .theme-card {
+  @apply bg-white border-slate-200 shadow-sm rounded-none border-b-4 border-r-4;
+}
+
+/* Base theme card (used by minimal and default fallback) */
+.theme-card {
+  @apply bg-elevated rounded-xl border border-border;
+}
+

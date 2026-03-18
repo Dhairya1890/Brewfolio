@@ -1,0 +1,27 @@
+{
+  "name": "brewfolio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:frontend": "npm run dev --prefix Brewfolio-frontend",
+    "dev:backend": "npm run dev --prefix Brewfolio-backend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "install:all": "npm install --prefix Brewfolio-frontend && npm install --prefix Brewfolio-backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dhairya1890/Brewfolio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Dhairya1890/Brewfolio/issues"
+  },
+  "homepage": "https://github.com/Dhairya1890/Brewfolio#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

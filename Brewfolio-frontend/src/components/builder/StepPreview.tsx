@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Globe, Code2, FileText, Check, Copy } from "lucide-react";
 import type { BuilderState } from "@/pages/Build";
 import { toast } from "sonner";
+import { getAccentBgColor, getAccentTextColor, getAccentBorderColor } from "@/utils/theme";
 
 const accentColors = [
   { key: "violet", color: "bg-accent-violet" },
@@ -157,10 +158,10 @@ const StepPreview = ({ state, setState }: Props) => {
             </div>
           </div>
 
-          <div className="p-8 min-h-[600px] space-y-8">
+          <div className={`p-8 min-h-[600px] space-y-8 theme-${state.theme}`}>
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-accent-violet/20 flex items-center justify-center">
-                <span className="font-syne text-3xl font-bold text-accent-violet">
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center bg-opacity-20 ${getAccentBgColor(state.accentColor).replace('bg-', 'bg-opacity-20 bg-')}`}>
+                <span className={`font-syne text-3xl font-bold ${getAccentTextColor(state.accentColor)}`}>
                   {username[0].toUpperCase()}
                 </span>
               </div>
@@ -180,7 +181,7 @@ const StepPreview = ({ state, setState }: Props) => {
                 { label: "Contributions", value: "1,247" },
                 { label: "Stars", value: "186" },
               ].map((s) => (
-                <div key={s.label} className="bg-elevated rounded-xl p-4 text-center">
+                <div key={s.label} className="theme-card p-4 text-center">
                   <div className="font-syne text-2xl font-bold text-foreground">{s.value}</div>
                   <div className="font-dm text-xs text-text-secondary mt-1">{s.label}</div>
                 </div>
@@ -191,7 +192,7 @@ const StepPreview = ({ state, setState }: Props) => {
               <h4 className="font-syne font-bold text-foreground mb-3">Top Projects</h4>
               <div className="grid sm:grid-cols-2 gap-3">
                 {["cloud-sync", "ml-pipeline", "chat-app", "devfolio"].map((p) => (
-                  <div key={p} className="bg-elevated rounded-xl p-4 border border-border hover:border-[hsl(var(--border-hover))] transition-colors">
+                  <div key={p} className="theme-card p-4 hover:border-[hsl(var(--border-hover))] transition-colors">
                     <div className="font-mono text-sm text-foreground font-medium">{p}</div>
                     <div className="font-dm text-xs text-text-secondary mt-1">
                       A well-crafted project with clean architecture.
@@ -209,7 +210,7 @@ const StepPreview = ({ state, setState }: Props) => {
               <h4 className="font-syne font-bold text-foreground mb-3">Skills</h4>
               <div className="flex flex-wrap gap-2">
                 {["TypeScript", "React", "Node.js", "Python", "Go", "PostgreSQL", "Docker", "AWS"].map((s) => (
-                  <span key={s} className="px-3 py-1 rounded-lg bg-accent-violet/10 border border-accent-violet/20 text-xs font-mono text-foreground">
+                  <span key={s} className={`px-3 py-1 rounded-lg text-xs font-mono text-foreground bg-opacity-10 border ${getAccentBgColor(state.accentColor).replace('bg-', 'bg-opacity-10 bg-')} ${getAccentBorderColor(state.accentColor)}`}>
                     {s}
                   </span>
                 ))}
