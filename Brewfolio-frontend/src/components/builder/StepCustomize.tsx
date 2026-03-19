@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Briefcase, Zap, GitBranch, User, Monitor, Smartphone } from "lucide-react";
+import { Briefcase, Zap, GitBranch, User, Monitor, Smartphone, Loader2 } from "lucide-react";
 import type { BuilderState } from "@/pages/Build";
+import { ai } from "@/lib/api";
+import { THEME_MAP } from "@/themes";
+import type { ThemeType, DeveloperProfile, AccentColor } from "@/types";
+import { toast } from "sonner";
 
 const portfolioTypes = [
   { key: "job", label: "Job Seeking", icon: Briefcase },
@@ -22,6 +26,22 @@ const themes = [
   { key: "glass", label: "Glassmorphism" },
 ];
 
+// Map theme keys to ThemeType
+const themeKeyToType: Record<string, ThemeType> = {
+  minimal: "minimal",
+  terminal: "terminal",
+  magazine: "magazine",
+  glass: "glassmorphism",
+};
+
+// Map portfolio type keys to API format
+const portfolioTypeMap: Record<string, string> = {
+  job: "job_seeking",
+  freelance: "freelance",
+  opensource: "open_source",
+  personal: "personal_brand",
+};
+
 interface Props {
   state: BuilderState;
   setState: (s: BuilderState) => void;
@@ -39,13 +59,48 @@ const StepCustomize = ({ state, setState, onNext }: Props) => {
     setState({ ...state, features: next });
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setGenerating(true);
-    setTimeout(() => {
+
+    try {
+      if (state.jobId) {
+        // Real API call
+        const themeType = themeKeyToType[state.theme] || "minimal";
+        const profile = await ai.generate(state.jobId, {
+          portfolio_type: (portfolioTypeMap[state.portfolioType] || "job_seeking") as any,
+          ai_prompt: state.aiPrompt,
+          theme: themeType,
+          accent_color: (state.accentColor || "violet") as AccentColor,
+          features: {
+            projects: state.features.includes("Projects"),
+            skills: state.features.includes("Skills"),
+            stats: state.features.includes("Stats"),
+            competitive: true,
+            blog: state.features.includes("Blog"),
+            contact: state.features.includes("Contact Form"),
+          },
+        });
+
+        setState({ ...state, generated: true, profile });
+        toast.success("Portfolio generated!");
+      } else {
+        // Fallback: mock generation (no job_id means scraping was skipped)
+        setTimeout(() => {
+          setGenerating(false);
+          setState({ ...state, generated: true });
+        }, 2500);
+        return;
+      }
+    } catch (error: any) {
+      toast.error(error?.message || "Generation failed");
+    } finally {
       setGenerating(false);
-      setState({ ...state, generated: true });
-    }, 2500);
+    }
   };
+
+  // Determine which theme component to render for the live preview
+  const themeType = themeKeyToType[state.theme] || "minimal";
+  const ThemeComponent = THEME_MAP[themeType];
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
@@ -158,7 +213,10 @@ const StepCustomize = ({ state, setState, onNext }: Props) => {
             className="w-full btn-gradient text-primary-foreground font-syne font-semibold py-3.5 rounded-xl transition-all duration-200 relative overflow-hidden"
           >
             {generating ? (
-              <span className="animate-pulse">AI is writing your story...</span>
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                AI is writing your story...
+              </span>
             ) : (
               "Generate Portfolio ✦"
             )}
@@ -204,7 +262,7 @@ const StepCustomize = ({ state, setState, onNext }: Props) => {
             </div>
             <div className="flex-1 ml-4">
               <div className="bg-elevated rounded-md px-3 py-1 text-xs font-mono text-text-tertiary max-w-xs">
-                devfolio.sh/preview
+                brewfolio.sh/preview
               </div>
             </div>
           </div>
@@ -215,13 +273,27 @@ const StepCustomize = ({ state, setState, onNext }: Props) => {
               previewDevice === "mobile" ? "max-w-[390px]" : "w-full"
             }`}
           >
-            <div className="p-8 min-h-[500px]">
-              {state.generated ? (
+            <div className="min-h-[500px] overflow-auto max-h-[700px]">
+              {state.generated && state.profile ? (
+                <ThemeComponent profile={{
+                  ...state.profile,
+                  theme: themeType,
+                  accent_color: (state.accentColor || "violet") as AccentColor,
+                  sections_visible: {
+                    ...(state.profile.sections_visible || {}),
+                    projects: state.features.includes("Projects"),
+                    skills: state.features.includes("Skills"),
+                    stats: state.features.includes("Stats"),
+                    blog: state.features.includes("Blog"),
+                    contact: state.features.includes("Contact Form"),
+                  } as any
+                }} />
+              ) : state.generated ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.25 }}
-                  className="space-y-6"
+                  className="space-y-6 p-8"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-full bg-accent-violet/20 flex items-center justify-center">
@@ -284,7 +356,7 @@ const StepCustomize = ({ state, setState, onNext }: Props) => {
                   )}
                 </motion.div>
               ) : (
-                <div className="flex items-center justify-center h-[400px]">
+                <div className="flex items-center justify-center h-[400px] p-8">
                   <p className="font-dm text-text-tertiary text-sm">
                     Generate your portfolio to see a preview
                   </p>

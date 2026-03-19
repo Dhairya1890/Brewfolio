@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, Code2, FileText, Check, Copy } from "lucide-react";
+import { Globe, Code2, FileText, Check, Copy, Loader2 } from "lucide-react";
 import type { BuilderState } from "@/pages/Build";
 import { toast } from "sonner";
+import { portfolio } from "@/lib/api";
+import { THEME_MAP } from "@/themes";
+import type { ThemeType, AccentColor } from "@/types";
 
 const accentColors = [
   { key: "violet", color: "bg-accent-violet" },
@@ -13,6 +16,14 @@ const accentColors = [
   { key: "mono", color: "bg-foreground" },
 ];
 
+// Map theme keys to ThemeType
+const themeKeyToType: Record<string, ThemeType> = {
+  minimal: "minimal",
+  terminal: "terminal",
+  magazine: "magazine",
+  glass: "glassmorphism",
+};
+
 interface Props {
   state: BuilderState;
   setState: (s: BuilderState) => void;
@@ -20,13 +31,49 @@ interface Props {
 
 const StepPreview = ({ state, setState }: Props) => {
   const [celebrating, setCelebrating] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishedUrl, setPublishedUrl] = useState("");
 
-  const handlePublish = () => {
-    setCelebrating(true);
-    setTimeout(() => setCelebrating(false), 3000);
+  const handlePublish = async () => {
+    if (state.profile?.id) {
+      setPublishing(true);
+      try {
+        const themeType = themeKeyToType[state.theme] || "minimal";
+        await portfolio.save({
+          ...state.profile,
+          name: state.name || state.profile.name,
+          theme: themeType,
+          accent_color: (state.accentColor || "violet") as AccentColor,
+          sections_visible: {
+            ...(state.profile.sections_visible || {}),
+            projects: state.features.includes("Projects"),
+            skills: state.features.includes("Skills"),
+            stats: state.features.includes("Stats"),
+            blog: state.features.includes("Blog"),
+            contact: state.features.includes("Contact Form"),
+          } as any
+        });
+        const result = await portfolio.publish(state.profile.id);
+        setPublishedUrl(result.url);
+        setCelebrating(true);
+        setTimeout(() => setCelebrating(false), 5000);
+      } catch (error: any) {
+        toast.error(error?.message || "Publish failed");
+      } finally {
+        setPublishing(false);
+      }
+    } else {
+      // Mock publish
+      setCelebrating(true);
+      setTimeout(() => setCelebrating(false), 3000);
+    }
   };
 
   const username = state.profiles.github || "yourname";
+
+  // Determine theme
+  const themeType = themeKeyToType[state.theme] || "minimal";
+  const ThemeComponent = THEME_MAP[themeType];
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 relative">
@@ -118,20 +165,36 @@ const StepPreview = ({ state, setState }: Props) => {
           <div className="space-y-3">
             <button
               onClick={handlePublish}
+              disabled={publishing}
               className="w-full btn-gradient text-primary-foreground font-syne font-semibold py-3.5 rounded-xl hover:scale-[1.02] transition-transform flex items-center justify-center gap-2"
             >
-              <Globe className="w-4 h-4" />
-              Publish →
+              {publishing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Publishing...
+                </>
+              ) : (
+                <>
+                  <Globe className="w-4 h-4" />
+                  Publish →
+                </>
+              )}
             </button>
             <button
-              onClick={() => toast.success("Download started!")}
+              onClick={() => toast.info("ZIP download coming soon!")}
               className="w-full border border-accent-violet/30 text-foreground font-dm py-3 rounded-xl hover:bg-accent-violet/5 transition-all flex items-center justify-center gap-2 text-sm"
             >
               <Code2 className="w-4 h-4" />
               Download .zip
             </button>
             <button
-              onClick={() => toast.success("PDF generation started!")}
+              onClick={() => {
+                if (state.profile?.id) {
+                  window.open(portfolio.exportPdf(state.profile.id), "_blank");
+                } else {
+                  toast.info("PDF export coming soon!");
+                }
+              }}
               className="w-full border border-accent-cyan/30 text-foreground font-dm py-3 rounded-xl hover:bg-accent-cyan/5 transition-all flex items-center justify-center gap-2 text-sm"
             >
               <FileText className="w-4 h-4" />
@@ -152,69 +215,88 @@ const StepPreview = ({ state, setState }: Props) => {
             </div>
             <div className="flex-1 ml-4">
               <div className="bg-elevated rounded-md px-3 py-1 text-xs font-mono text-text-tertiary max-w-xs">
-                devfolio.sh/{username}
+                brewfolio.sh/{state.profile?.slug || username}
               </div>
             </div>
           </div>
 
-          <div className="p-8 min-h-[600px] space-y-8">
-            <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-accent-violet/20 flex items-center justify-center">
-                <span className="font-syne text-3xl font-bold text-accent-violet">
-                  {username[0].toUpperCase()}
-                </span>
-              </div>
-              <div>
-                <h2 className="font-syne text-2xl font-bold text-foreground">
-                  {state.name || `@${username}`}
-                </h2>
-                <p className="font-dm text-sm text-text-secondary mt-1">
-                  Full-stack developer passionate about building tools that matter.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { label: "Repos", value: "42" },
-                { label: "Contributions", value: "1,247" },
-                { label: "Stars", value: "186" },
-              ].map((s) => (
-                <div key={s.label} className="bg-elevated rounded-xl p-4 text-center">
-                  <div className="font-syne text-2xl font-bold text-foreground">{s.value}</div>
-                  <div className="font-dm text-xs text-text-secondary mt-1">{s.label}</div>
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <h4 className="font-syne font-bold text-foreground mb-3">Top Projects</h4>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {["cloud-sync", "ml-pipeline", "chat-app", "devfolio"].map((p) => (
-                  <div key={p} className="bg-elevated rounded-xl p-4 border border-border hover:border-[hsl(var(--border-hover))] transition-colors">
-                    <div className="font-mono text-sm text-foreground font-medium">{p}</div>
-                    <div className="font-dm text-xs text-text-secondary mt-1">
-                      A well-crafted project with clean architecture.
-                    </div>
-                    <div className="flex gap-2 mt-2">
-                      <span className="text-[10px] font-mono text-accent-cyan">TypeScript</span>
-                      <span className="text-[10px] font-mono text-text-tertiary">★ 24</span>
-                    </div>
+          <div className="overflow-auto max-h-[800px] rounded-b-2xl">
+            {state.profile ? (
+              <ThemeComponent profile={{
+                ...state.profile,
+                name: state.name || state.profile.name,
+                theme: themeType,
+                accent_color: (state.accentColor || "violet") as AccentColor,
+                sections_visible: {
+                  ...(state.profile.sections_visible || {}),
+                  projects: state.features.includes("Projects"),
+                  skills: state.features.includes("Skills"),
+                  stats: state.features.includes("Stats"),
+                  blog: state.features.includes("Blog"),
+                  contact: state.features.includes("Contact Form"),
+                } as any
+              }} />
+            ) : (
+              <div className="p-8 min-h-[600px] space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 rounded-full bg-accent-violet/20 flex items-center justify-center">
+                    <span className="font-syne text-3xl font-bold text-accent-violet">
+                      {username[0].toUpperCase()}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div>
+                    <h2 className="font-syne text-2xl font-bold text-foreground">
+                      {state.name || `@${username}`}
+                    </h2>
+                    <p className="font-dm text-sm text-text-secondary mt-1">
+                      Full-stack developer passionate about building tools that matter.
+                    </p>
+                  </div>
+                </div>
 
-            <div>
-              <h4 className="font-syne font-bold text-foreground mb-3">Skills</h4>
-              <div className="flex flex-wrap gap-2">
-                {["TypeScript", "React", "Node.js", "Python", "Go", "PostgreSQL", "Docker", "AWS"].map((s) => (
-                  <span key={s} className="px-3 py-1 rounded-lg bg-accent-violet/10 border border-accent-violet/20 text-xs font-mono text-foreground">
-                    {s}
-                  </span>
-                ))}
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { label: "Repos", value: "42" },
+                    { label: "Contributions", value: "1,247" },
+                    { label: "Stars", value: "186" },
+                  ].map((s) => (
+                    <div key={s.label} className="bg-elevated rounded-xl p-4 text-center">
+                      <div className="font-syne text-2xl font-bold text-foreground">{s.value}</div>
+                      <div className="font-dm text-xs text-text-secondary mt-1">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div>
+                  <h4 className="font-syne font-bold text-foreground mb-3">Top Projects</h4>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {["cloud-sync", "ml-pipeline", "chat-app", "brewfolio"].map((p) => (
+                      <div key={p} className="bg-elevated rounded-xl p-4 border border-border hover:border-[hsl(var(--border-hover))] transition-colors">
+                        <div className="font-mono text-sm text-foreground font-medium">{p}</div>
+                        <div className="font-dm text-xs text-text-secondary mt-1">
+                          A well-crafted project with clean architecture.
+                        </div>
+                        <div className="flex gap-2 mt-2">
+                          <span className="text-[10px] font-mono text-accent-cyan">TypeScript</span>
+                          <span className="text-[10px] font-mono text-text-tertiary">★ 24</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-syne font-bold text-foreground mb-3">Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {["TypeScript", "React", "Node.js", "Python", "Go", "PostgreSQL", "Docker", "AWS"].map((s) => (
+                      <span key={s} className="px-3 py-1 rounded-lg bg-accent-violet/10 border border-accent-violet/20 text-xs font-mono text-foreground">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -243,11 +325,12 @@ const StepPreview = ({ state, setState }: Props) => {
               </h2>
               <div className="flex items-center gap-2 justify-center bg-surface border border-border rounded-xl px-6 py-3">
                 <span className="font-mono text-accent-cyan text-sm">
-                  devfolio.sh/{username}
+                  {publishedUrl || `brewfolio.sh/${state.profile?.slug || username}`}
                 </span>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(`devfolio.sh/${username}`);
+                    const url = publishedUrl || `brewfolio.sh/${state.profile?.slug || username}`;
+                    navigator.clipboard.writeText(url);
                     toast.success("URL copied!");
                   }}
                   className="text-text-secondary hover:text-foreground transition-colors"

@@ -15,7 +15,7 @@ const features = [
   {
     icon: ArrowUpRight,
     title: "Publish in one click",
-    description: "Get a live URL at devfolio.sh/yourname. Export as static HTML or drop the resume PDF.",
+    description: "Get a live URL at brewfolio.sh/yourname. Export as static HTML or drop the resume PDF.",
   },
 ];
 

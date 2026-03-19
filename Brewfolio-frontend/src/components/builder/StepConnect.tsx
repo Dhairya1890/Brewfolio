@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Github, Code2, Trophy, Terminal, BookOpen, Hash, Check } from "lucide-react";
+import { Github, Code2, Trophy, Terminal, BookOpen, Hash, Check, Loader2 } from "lucide-react";
 import type { BuilderState } from "@/pages/Build";
+import { scraper } from "@/lib/api";
+import { toast } from "sonner";
 
 const platforms = [
   { key: "github", name: "GitHub", icon: Github },
@@ -19,11 +21,58 @@ interface Props {
 
 const StepConnect = ({ state, setState, onNext }: Props) => {
   const [focused, setFocused] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
 
   const hasAny = Object.values(state.profiles).some((v) => v.trim().length > 0);
 
   const updateProfile = (key: string, value: string) => {
     setState({ ...state, profiles: { ...state.profiles, [key]: value } });
+  };
+
+  const handleBuild = async () => {
+    setLoading(true);
+    setStatusMessage("Initializing...");
+
+    try {
+      // Map frontend platform keys to API PlatformInputs
+      const platformInputs = {
+        github: state.profiles.github?.trim() || undefined,
+        leetcode: state.profiles.leetcode?.trim() || undefined,
+        codeforces: state.profiles.codeforces?.trim() || undefined,
+        atcoder: state.profiles.atcoder?.trim() || undefined,
+        codechef: state.profiles.codechef?.trim() || undefined,
+        extra_url: state.extraLinks?.trim() || undefined,
+      };
+
+      const { job_id } = await scraper.initJob(platformInputs);
+      setState({ ...state, jobId: job_id });
+
+      // Poll until done
+      await scraper.pollUntilDone(
+        job_id,
+        (status) => {
+          setStatusMessage(status.message || "Processing...");
+        },
+        2000,
+      );
+
+      setStatusMessage("Data collected! Moving on...");
+      setState({ ...state, jobId: job_id });
+      toast.success("Profiles scraped successfully!");
+
+      // Small delay for the success toast to show
+      setTimeout(() => {
+        onNext();
+      }, 500);
+    } catch (error: any) {
+      const msg = error?.message || "Failed to scrape profiles";
+      setStatusMessage("");
+      toast.error(msg);
+      setState({ ...state, scrapeError: msg });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,6 +116,7 @@ const StepConnect = ({ state, setState, onNext }: Props) => {
                     onChange={(e) => updateProfile(p.key, e.target.value)}
                     onFocus={() => setFocused(p.key)}
                     onBlur={() => setFocused(null)}
+                    disabled={loading}
                     className="bg-transparent font-mono text-sm text-foreground placeholder:text-text-tertiary outline-none w-full"
                   />
                 </div>
@@ -89,18 +139,34 @@ const StepConnect = ({ state, setState, onNext }: Props) => {
           placeholder="Paste a link to anything else — personal blog, Notion page, Dribbble, LinkedIn..."
           value={state.extraLinks}
           onChange={(e) => setState({ ...state, extraLinks: e.target.value })}
+          disabled={loading}
           className="w-full bg-elevated border border-border rounded-xl p-4 font-mono text-sm text-foreground placeholder:text-text-tertiary outline-none focus:border-[hsl(var(--border-active))] focus:shadow-[0_0_12px_hsl(189,94%,43%,0.15)] transition-all resize-none h-24"
         />
       </div>
 
+      {/* Status message during scraping */}
+      {loading && statusMessage && (
+        <div className="mb-4 flex items-center gap-2 font-dm text-sm text-accent-cyan">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          {statusMessage}
+        </div>
+      )}
+
       <button
-        onClick={onNext}
-        disabled={!hasAny}
+        onClick={handleBuild}
+        disabled={!hasAny || loading}
         className={`btn-gradient text-primary-foreground font-syne font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 ${
-          hasAny ? "hover:scale-[1.03]" : "opacity-40 cursor-not-allowed"
+          hasAny && !loading ? "hover:scale-[1.03]" : "opacity-40 cursor-not-allowed"
         }`}
       >
-        Build my profile →
+        {loading ? (
+          <span className="flex items-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Scraping profiles...
+          </span>
+        ) : (
+          "Build my profile →"
+        )}
       </button>
     </div>
   );

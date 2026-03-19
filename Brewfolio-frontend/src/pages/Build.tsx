@@ -5,6 +5,14 @@ import StepIndicator from "@/components/builder/StepIndicator";
 import StepConnect from "@/components/builder/StepConnect";
 import StepCustomize from "@/components/builder/StepCustomize";
 import StepPreview from "@/components/builder/StepPreview";
+import type {
+  PlatformInputs,
+  ThemeType,
+  AccentColor,
+  SectionsVisible,
+  DeveloperProfile,
+  PortfolioType,
+} from "@/types";
 
 export interface BuilderState {
   profiles: Record<string, string>;
@@ -17,6 +25,10 @@ export interface BuilderState {
   name: string;
   accentColor: string;
   fontSize: string;
+  // Real API state
+  jobId?: string;
+  profile?: DeveloperProfile;
+  scrapeError?: string;
 }
 
 const initialState: BuilderState = {
