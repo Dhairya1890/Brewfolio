@@ -198,6 +198,7 @@ class GithubScraper(BaseScraper):
                 "pinned_names": pinned_names,
                 "total_stars": total_stars,
                 "contributions": contributions,
+                "languages": languages,
             }
         except Exception as e:
             logger.error(f"GitHub scraper failed for {username}: {e}")

@@ -93,19 +93,17 @@ const StepConnect = ({ state, setState, onNext }: Props) => {
           return (
             <div
               key={p.key}
-              className={`flex items-center gap-4 bg-surface border rounded-xl p-4 transition-all duration-200 ${
-                isFocused
-                  ? "border-[hsl(var(--border-active))] shadow-[0_0_12px_hsl(189,94%,43%,0.15)]"
-                  : isFilled
+              className={`flex items-center gap-4 bg-surface border rounded-xl p-4 transition-all duration-200 ${isFocused
+                ? "border-[hsl(var(--border-active))] shadow-[0_0_12px_hsl(189,94%,43%,0.15)]"
+                : isFilled
                   ? "border-accent-cyan/30"
                   : "border-border opacity-60 hover:opacity-80"
-              }`}
+                }`}
             >
               <div className="flex items-center gap-3 flex-1">
                 <p.icon
-                  className={`w-5 h-5 shrink-0 transition-colors ${
-                    isFilled ? "text-foreground" : "text-text-secondary"
-                  }`}
+                  className={`w-5 h-5 shrink-0 transition-colors ${isFilled ? "text-foreground" : "text-text-secondary"
+                    }`}
                 />
                 <div className="flex flex-col flex-1">
                   <span className="font-dm text-xs text-text-secondary mb-1">{p.name}</span>
@@ -155,9 +153,8 @@ const StepConnect = ({ state, setState, onNext }: Props) => {
       <button
         onClick={handleBuild}
         disabled={!hasAny || loading}
-        className={`btn-gradient text-primary-foreground font-syne font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 ${
-          hasAny && !loading ? "hover:scale-[1.03]" : "opacity-40 cursor-not-allowed"
-        }`}
+        className={`btn-gradient text-primary-foreground font-syne font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 ${hasAny && !loading ? "hover:scale-[1.03]" : "opacity-40 cursor-not-allowed"
+          }`}
       >
         {loading ? (
           <span className="flex items-center gap-2">

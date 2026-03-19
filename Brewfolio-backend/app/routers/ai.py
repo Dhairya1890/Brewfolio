@@ -43,7 +43,9 @@ def _build_profile_from_raw_and_ai(
     projects = [
         Project(
             name=r.get("name", ""),
-            description=ai_descriptions.get(r.get("name", ""), r.get("description", "")),
+            description=ai_descriptions.get(
+                r.get("name", ""), r.get("description", "")
+            ),
             url=r.get("html_url", ""),
             stars=r.get("stargazers_count", 0),
             forks=r.get("forks_count", 0),
@@ -56,57 +58,74 @@ def _build_profile_from_raw_and_ai(
 
     # Build skills from AI output
     ai_skills = ai_output.get("skills", [])
-    skills = [SkillCategory(category=s.get("category", ""), items=s.get("items", [])) for s in ai_skills]
+    skills = [
+        SkillCategory(category=s.get("category", ""), items=s.get("items", []))
+        for s in ai_skills
+    ]
 
     # Ensure GitHub top languages are present in "Languages" category
     github_languages = github.get("languages", [])
     if github_languages:
-        languages_category = next((s for s in skills if s.category.lower() == "languages"), None)
+        languages_category = next(
+            (s for s in skills if s.category.lower() == "languages"), None
+        )
         if languages_category:
             existing_items = set(item.lower() for item in languages_category.items)
             for lang in github_languages:
                 if lang.lower() not in existing_items:
                     languages_category.items.append(lang)
         else:
-            skills.insert(0, SkillCategory(category="Languages", items=github_languages))
+            skills.insert(
+                0, SkillCategory(category="Languages", items=github_languages)
+            )
 
     # Build competitive profiles
     competitive: list[CompetitiveProfile] = []
     if leetcode:
-        competitive.append(CompetitiveProfile(
-            platform="leetcode",
-            handle=leetcode.get("username", ""),
-            rating=leetcode.get("contest_rating", 0),
-            rank=str(leetcode.get("global_ranking", "")),
-            solved=leetcode.get("solved_total", 0),
-        ))
+        competitive.append(
+            CompetitiveProfile(
+                platform="leetcode",
+                handle=leetcode.get("username", ""),
+                rating=leetcode.get("contest_rating", 0),
+                rank=str(leetcode.get("global_ranking", "")),
+                solved=leetcode.get("solved_total", 0),
+            )
+        )
     if codeforces:
-        competitive.append(CompetitiveProfile(
-            platform="codeforces",
-            handle=codeforces.get("handle", ""),
-            rating=codeforces.get("rating", 0),
-            rank=codeforces.get("rank", ""),
-            max_rating=codeforces.get("max_rating"),
-            contests_participated=codeforces.get("contests_count", 0),
-        ))
+        competitive.append(
+            CompetitiveProfile(
+                platform="codeforces",
+                handle=codeforces.get("handle", ""),
+                rating=codeforces.get("rating", 0),
+                rank=codeforces.get("rank", ""),
+                max_rating=codeforces.get("max_rating"),
+                contests_participated=codeforces.get("contests_count", 0),
+            )
+        )
     if atcoder and atcoder.get("rating"):
-        competitive.append(CompetitiveProfile(
-            platform="atcoder",
-            handle=atcoder.get("handle", ""),
-            rating=atcoder.get("rating", 0),
-            rank=atcoder.get("rank", ""),
-            max_rating=atcoder.get("max_rating"),
-            contests_participated=atcoder.get("contests_count", 0),
-        ))
+        competitive.append(
+            CompetitiveProfile(
+                platform="atcoder",
+                handle=atcoder.get("handle", ""),
+                rating=atcoder.get("rating", 0),
+                rank=atcoder.get("rank", ""),
+                max_rating=atcoder.get("max_rating"),
+                contests_participated=atcoder.get("contests_count", 0),
+            )
+        )
     if codechef and codechef.get("rating"):
-        competitive.append(CompetitiveProfile(
-            platform="codechef",
-            handle=codechef.get("handle", ""),
-            rating=codechef.get("rating", 0),
-            rank=codechef.get("stars", ""),
-        ))
+        competitive.append(
+            CompetitiveProfile(
+                platform="codechef",
+                handle=codechef.get("handle", ""),
+                rating=codechef.get("rating", 0),
+                rank=codechef.get("stars", ""),
+            )
+        )
 
-    username = github.get("name", "").split()[0].lower() if github.get("name") else "user"
+    username = (
+        github.get("name", "").split()[0].lower() if github.get("name") else "user"
+    )
     github_username = ""
     for repo in repos:
         url = repo.get("html_url", "")
@@ -155,7 +174,10 @@ async def generate_profile(req: GenerateRequest):
     # Get raw data from Redis
     raw_data = cache_service.get_raw_data(req.job_id)
     if not raw_data:
-        raise HTTPException(status_code=404, detail="Scrape job data not found. Did the scrape complete?")
+        raise HTTPException(
+            status_code=404,
+            detail="Scrape job data not found. Did the scrape complete?",
+        )
 
     # Call AI service
     raw_scraped = RawScrapedData(
@@ -200,7 +222,10 @@ async def regenerate_profile(req: RegenerateRequest):
     # We need raw data — try Redis first
     # Use a simple fallback: regenerate from existing data
     raw_scraped = RawScrapedData(
-        github={"name": existing.get("name", ""), "repos": existing.get("projects", [])},
+        github={
+            "name": existing.get("name", ""),
+            "repos": existing.get("projects", []),
+        },
     )
 
     ai_output = await ai_service.generate_profile_content(

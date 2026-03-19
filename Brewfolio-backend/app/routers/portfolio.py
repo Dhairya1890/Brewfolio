@@ -35,7 +35,9 @@ async def publish_portfolio(profile_id: str):
 
         return PublishResponse(
             success=True,
-            url=result.get("published_url", f"https://{result.get('slug', 'user')}.brewfolio.sh"),
+            url=result.get(
+                "published_url", f"https://{result.get('slug', 'user')}.brewfolio.sh"
+            ),
             slug=result.get("slug", ""),
         )
     except HTTPException:

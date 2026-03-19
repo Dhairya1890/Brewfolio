@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 supabase = create_client(settings.supabase_url, settings.supabase_service_role_key)
 
 
-async def save_profile(profile_data: dict[str, Any], user_id: str | None = None) -> dict[str, Any]:
+async def save_profile(
+    profile_data: dict[str, Any], user_id: str | None = None
+) -> dict[str, Any]:
     """Save or update a profile in Supabase."""
     data = {
         "name": profile_data.get("name", ""),
@@ -88,7 +90,7 @@ async def publish_profile(profile_id: str) -> Optional[dict[str, Any]]:
         return None
 
     slug = profile.get("slug") or profile.get("username", "user")
-    published_url = f"https://{slug}.brewfolio.sh"
+    published_url = f"{settings.frontend_url}/{slug}"
 
     # Check if Cloudflare R2 is configured
     if not settings.cf_account_id:
@@ -96,11 +98,13 @@ async def publish_profile(profile_id: str) -> Optional[dict[str, Any]]:
 
     result = (
         supabase.table("profiles")
-        .update({
-            "is_published": True,
-            "published_url": published_url,
-            "updated_at": datetime.now(timezone.utc).isoformat(),
-        })
+        .update(
+            {
+                "is_published": True,
+                "published_url": published_url,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+        )
         .eq("id", profile_id)
         .execute()
     )

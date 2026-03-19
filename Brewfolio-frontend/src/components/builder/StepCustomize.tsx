@@ -118,11 +118,10 @@ const StepCustomize = ({ state, setState, onNext }: Props) => {
                 <button
                   key={t.key}
                   onClick={() => setState({ ...state, portfolioType: t.key })}
-                  className={`relative flex items-center gap-3 p-4 rounded-xl border transition-all duration-200 text-left ${
-                    selected
+                  className={`relative flex items-center gap-3 p-4 rounded-xl border transition-all duration-200 text-left ${selected
                       ? "border-accent-violet bg-accent-violet/10 text-foreground"
                       : "border-border bg-surface text-text-secondary hover:border-[hsl(var(--border-hover))]"
-                  }`}
+                    }`}
                 >
                   <t.icon className={`w-5 h-5 ${selected ? "text-accent-violet" : ""}`} />
                   <span className="font-dm text-sm font-medium">{t.label}</span>
@@ -148,11 +147,10 @@ const StepCustomize = ({ state, setState, onNext }: Props) => {
                   key={f}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => toggleFeature(f)}
-                  className={`px-3.5 py-1.5 rounded-lg text-sm font-dm border transition-all duration-200 ${
-                    active
+                  className={`px-3.5 py-1.5 rounded-lg text-sm font-dm border transition-all duration-200 ${active
                       ? "bg-accent-violet/20 border-accent-violet/40 text-foreground"
                       : "bg-elevated border-border text-text-secondary hover:border-[hsl(var(--border-hover))]"
-                  }`}
+                    }`}
                 >
                   {active ? "✓ " : ""}{f}
                 </motion.button>
@@ -173,11 +171,10 @@ const StepCustomize = ({ state, setState, onNext }: Props) => {
                 <button
                   key={t.key}
                   onClick={() => setState({ ...state, theme: t.key })}
-                  className={`relative h-20 rounded-xl border flex items-center justify-center font-dm text-sm transition-all duration-200 ${
-                    selected
+                  className={`relative h-20 rounded-xl border flex items-center justify-center font-dm text-sm transition-all duration-200 ${selected
                       ? "border-accent-violet bg-accent-violet/10 text-foreground"
                       : "border-border bg-surface text-text-secondary hover:border-[hsl(var(--border-hover))]"
-                  }`}
+                    }`}
                 >
                   {t.label}
                   {selected && (
@@ -236,17 +233,15 @@ const StepCustomize = ({ state, setState, onNext }: Props) => {
         <div className="flex items-center gap-2 mb-3 justify-end">
           <button
             onClick={() => setPreviewDevice("desktop")}
-            className={`p-2 rounded-lg transition-colors ${
-              previewDevice === "desktop" ? "bg-elevated text-foreground" : "text-text-tertiary hover:text-text-secondary"
-            }`}
+            className={`p-2 rounded-lg transition-colors ${previewDevice === "desktop" ? "bg-elevated text-foreground" : "text-text-tertiary hover:text-text-secondary"
+              }`}
           >
             <Monitor className="w-4 h-4" />
           </button>
           <button
             onClick={() => setPreviewDevice("mobile")}
-            className={`p-2 rounded-lg transition-colors ${
-              previewDevice === "mobile" ? "bg-elevated text-foreground" : "text-text-tertiary hover:text-text-secondary"
-            }`}
+            className={`p-2 rounded-lg transition-colors ${previewDevice === "mobile" ? "bg-elevated text-foreground" : "text-text-tertiary hover:text-text-secondary"
+              }`}
           >
             <Smartphone className="w-4 h-4" />
           </button>
@@ -269,9 +264,8 @@ const StepCustomize = ({ state, setState, onNext }: Props) => {
 
           {/* Preview content */}
           <div
-            className={`mx-auto transition-all duration-300 ${
-              previewDevice === "mobile" ? "max-w-[390px]" : "w-full"
-            }`}
+            className={`mx-auto transition-all duration-300 ${previewDevice === "mobile" ? "max-w-[390px]" : "w-full"
+              }`}
           >
             <div className="min-h-[500px] overflow-auto max-h-[700px]">
               {state.generated && state.profile ? (

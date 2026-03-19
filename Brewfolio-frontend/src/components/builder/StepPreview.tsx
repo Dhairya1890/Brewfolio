@@ -215,7 +215,7 @@ const StepPreview = ({ state, setState }: Props) => {
             </div>
             <div className="flex-1 ml-4">
               <div className="bg-elevated rounded-md px-3 py-1 text-xs font-mono text-text-tertiary max-w-xs">
-                brewfolio.sh/{state.profile?.slug || username}
+                {window.location.host}/{state.profile?.slug || username}
               </div>
             </div>
           </div>
@@ -325,11 +325,11 @@ const StepPreview = ({ state, setState }: Props) => {
               </h2>
               <div className="flex items-center gap-2 justify-center bg-surface border border-border rounded-xl px-6 py-3">
                 <span className="font-mono text-accent-cyan text-sm">
-                  {publishedUrl || `brewfolio.sh/${state.profile?.slug || username}`}
+                  {publishedUrl || `${window.location.host}/${state.profile?.slug || username}`}
                 </span>
                 <button
                   onClick={() => {
-                    const url = publishedUrl || `brewfolio.sh/${state.profile?.slug || username}`;
+                    const url = publishedUrl || `${window.location.origin}/${state.profile?.slug || username}`;
                     navigator.clipboard.writeText(url);
                     toast.success("URL copied!");
                   }}

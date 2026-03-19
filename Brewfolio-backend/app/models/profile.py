@@ -17,6 +17,7 @@ ScrapeStatus = Literal["pending", "scraping", "ai_generating", "complete", "fail
 
 # ─── Core Profile Models ──────────────────────────────────────────────
 
+
 class ProfileLinks(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -123,6 +124,7 @@ class DeveloperProfile(BaseModel):
 
 # ─── API Models ────────────────────────────────────────────────────────
 
+
 class PlatformInputs(BaseModel):
     github: Optional[str] = None
     leetcode: Optional[str] = None
@@ -163,6 +165,7 @@ class RegenerateRequest(BaseModel):
 
 class RawScrapedData(BaseModel):
     """Container for raw data from all scrapers."""
+
     github: dict = {}
     leetcode: dict = {}
     codeforces: dict = {}

@@ -66,21 +66,21 @@ const MinimalTheme = ({ profile }: Props) => {
             <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
               {profile.links.github && (
                 <a href={profile.links.github} target="_blank" rel="noopener noreferrer"
-                   style={{ color: '#9994B8', textDecoration: 'none', fontSize: 14, transition: 'color 0.2s' }}
-                   onMouseEnter={e => (e.currentTarget.style.color = accent)}
-                   onMouseLeave={e => (e.currentTarget.style.color = '#9994B8')}>
+                  style={{ color: '#9994B8', textDecoration: 'none', fontSize: 14, transition: 'color 0.2s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = accent)}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#9994B8')}>
                   GitHub ↗
                 </a>
               )}
               {profile.links.linkedin && (
                 <a href={profile.links.linkedin} target="_blank" rel="noopener noreferrer"
-                   style={{ color: '#9994B8', textDecoration: 'none', fontSize: 14 }}>
+                  style={{ color: '#9994B8', textDecoration: 'none', fontSize: 14 }}>
                   LinkedIn ↗
                 </a>
               )}
               {profile.links.blog && (
                 <a href={profile.links.blog} target="_blank" rel="noopener noreferrer"
-                   style={{ color: '#9994B8', textDecoration: 'none', fontSize: 14 }}>
+                  style={{ color: '#9994B8', textDecoration: 'none', fontSize: 14 }}>
                   Blog ↗
                 </a>
               )}
